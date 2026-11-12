@@ -1,6 +1,6 @@
 module sync_fifo #(parameter DEPTH=8, DWIDTH=16)
 (
-        input rstn,               // Active low reset
+        input rst,               // Active low reset
         input clk,                // Clock
         input wr_en, 				// Write enable
         input rd_en, 				// Read enable
@@ -18,7 +18,7 @@ module sync_fifo #(parameter DEPTH=8, DWIDTH=16)
 
   // Write side: store din and advance the write pointer
   always @ (posedge clk) begin
-    if (!rstn) begin
+    if (rst) begin
       wptr <= 0;
     end else begin
       if (wr_en & !full) begin
@@ -28,15 +28,9 @@ module sync_fifo #(parameter DEPTH=8, DWIDTH=16)
     end
   end
 
-  // Print every change, for following the simulation
-  initial begin
-    $monitor("[%0t] [FIFO] wr_en=%0b din=0x%0h rd_en=%0b dout=0x%0h empty=%0b full=%0b",
-             $time, wr_en, din, rd_en, dout, empty, full);
-  end
-
   // Read side: output the oldest word and advance the read pointer
   always @ (posedge clk) begin
-    if (!rstn) begin
+    if (rst) begin
       rptr <= 0;
     end else begin
       if (rd_en & !empty) begin
